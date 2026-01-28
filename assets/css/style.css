@@ -149,6 +149,13 @@ body {
   flex-wrap: wrap;
 }
 
+.cal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .cal-title {
   margin: 0;
   font-size: 18px;
@@ -222,7 +229,7 @@ body {
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
-  border: 1px solid #eee;
+  border: 1px solid #ffb700;
   background: #fff;
   opacity: 0.9;
 }
@@ -236,6 +243,14 @@ body {
   border-color: #fada3b;
   box-shadow: 0 8px 22px rgba(0,0,0,0.10);
 }
+
+/* Selected date: event count highlight (yellow) */
+.cal-cell.selected .cal-dot {
+  border-color: #ffcc00;
+  background: #fff7cc;
+  color: #7a5d00;
+}
+
 
 .day-item {
   padding: 10px 0;
@@ -357,4 +372,63 @@ body {
 
 .map-btn:visited {
   color: #fff; /* prevent purple */
+}
+
+.fav-btn {
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fav-btn.active {
+  background: #fff3cd;
+  border-color: #ffcc00;
+  font-weight: 600;
+}
+
+.fav-btn:hover {
+  background: #f6f7fb;
+}
+
+.fav-only {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fff7cc;          /* soft yellow */
+  border: 1px solid #ffe08a;
+  font-size: 13px;
+  font-weight: 700;
+  user-select: none;
+}
+
+
+.fav-only:hover {
+  background: #ffec99;
+}
+
+.fav-only input {
+  width: 16px;
+  height: 16px;
+}
+
+.fav-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.fav-only input:checked + span {
+  color: #7a5d00;
+}
+
+@media (max-width: 520px) {
+  .cal-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

@@ -68,12 +68,21 @@
     <div class="cal-header">
       <h2 class="cal-title" id="calTitle">프로그램 일정</h2>
 
-      <div class="cal-controls">
-        <button class="btn" id="prevMonth" type="button">←</button>
-        <button class="btn" id="todayBtn" type="button">오늘</button>
-        <button class="btn" id="nextMonth" type="button">→</button>
+      <div class="cal-header-right">
+        <label class="fav-only" title="즐겨찾기한 프로그램만 표시">
+          <input type="checkbox" id="favOnly" />
+          <span class="fav-icon">⭐</span>
+          <span>즐겨찾기만 보기</span>
+        </label>
+
+        <div class="cal-controls">
+          <button class="btn" id="prevMonth" type="button">←</button>
+          <button class="btn" id="todayBtn" type="button">오늘</button>
+          <button class="btn" id="nextMonth" type="button">→</button>
+        </div>
       </div>
     </div>
+
 
     <div class="calendar" id="calendar"></div>
 
@@ -81,7 +90,7 @@
       <h3 style="margin:0 0 8px;">선택한 날짜의 프로그램</h3>
       <div id="dayList" class="small">날짜를 클릭하면 프로그램이 표시됩니다.</div>
     </div>
-      
+
     <div class="cal-filters">
       <div>
         <label class="label" for="orgFilter">기관</label>
@@ -108,4 +117,5 @@
   <script src="assets/js/orgs.js"></script>
   <script src="assets/js/calendar.js"></script>
 </body>
+
 </html>

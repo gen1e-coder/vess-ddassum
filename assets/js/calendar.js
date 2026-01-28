@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 const PROGRAMS_URL = "data/programs.seoul.json";
 
 const calendarEl = document.getElementById("calendar");
@@ -11,10 +13,30 @@ const todayBtn = document.getElementById("todayBtn");
 const orgFilterEl = document.getElementById("orgFilter");
 const districtFilterEl = document.getElementById("districtFilter");
 
-let filters = {
-  org: "",
-  district: ""
-};
+const favOnlyEl = document.getElementById("favOnly");
+
+const FAVORITES_KEY = "favoritePrograms";
+
+function getFavorites() {
+  return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+}
+function saveFavorites(favs) {
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+function isFavorite(id) {
+  return getFavorites().includes(id);
+}
+function toggleFavorite(id) {
+  let favs = getFavorites();
+  if (favs.includes(id)) favs = favs.filter((x) => x !== id);
+  else favs.push(id);
+  saveFavorites(favs);
+  return favs.includes(id); // ✅ returns new state (true/false)
+}
+
+
+let filters = { org: "", district: "", favOnly: false };
+
 
 let programs = [];
 let current = new Date(); // current month
@@ -51,6 +73,17 @@ function renderDayList(dateStr, byDate) {
 
   const html = items
   .map((p) => {
+    const programId = `${p.date}_${p.title}`;
+    const favActive = isFavorite(programId);
+    const favBtn = `
+      <button
+        class="fav-btn ${favActive ? "active" : ""}"
+        data-id="${programId}"
+        aria-label="즐겨찾기"
+      >
+        ${favActive ? "⭐ 즐겨찾기됨" : "☆ 즐겨찾기"}
+      </button>
+    `;
     const t = p.time ? `<span class="pill">${p.time}</span>` : "";
     const org = p.org ? `<span class="pill">${p.org}</span>` : "";
     const district = p.district ? `<span class="pill">${p.district}</span>` : "";
@@ -124,13 +157,25 @@ function renderDayList(dateStr, byDate) {
         ${address}
         ${info}
         ${link}
+        ${favBtn}
       </div>
     `;
   })
   .join("");
 
-
   dayListEl.innerHTML = html;
+  dayListEl.querySelectorAll(".fav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+
+      // toggle storage + get new state
+      const active = toggleFavorite(id);
+
+      // ✅ instantly update UI without reloading
+      btn.classList.toggle("active", active);
+      btn.textContent = active ? "⭐ 즐겨찾기됨" : "☆ 즐겨찾기";
+    });
+  });
 }
 
 function renderCalendar() {
@@ -215,12 +260,20 @@ function populateSelect(selectEl, items, placeholder = "전체") {
 }
 
 function getFilteredPrograms() {
+  const favSet = new Set(getFavorites());
+
   return programs.filter((p) => {
     const okOrg = !filters.org || p.org === filters.org;
     const okDistrict = !filters.district || p.district === filters.district;
-    return okOrg && okDistrict;
+
+    // favorites-only filter
+    const id = `${p.date}_${p.title}`;
+    const okFav = !filters.favOnly || favSet.has(id);
+
+    return okOrg && okDistrict && okFav;
   });
 }
+
 
 async function loadPrograms() {
   try {
@@ -272,4 +325,15 @@ districtFilterEl.addEventListener("change", () => {
   dayListEl.textContent = "날짜를 클릭하면 프로그램이 표시됩니다.";
 });
 
+if (favOnlyEl) {
+  favOnlyEl.addEventListener("change", () => {
+    filters.favOnly = favOnlyEl.checked;
+    renderCalendar();
+    dayListEl.textContent = "날짜를 클릭하면 프로그램이 표시됩니다.";
+  });
+}
+
+
 loadPrograms();
+
+});
