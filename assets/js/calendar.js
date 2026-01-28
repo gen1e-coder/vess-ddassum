@@ -54,7 +54,28 @@ function renderDayList(dateStr, byDate) {
     const t = p.time ? `<span class="pill">${p.time}</span>` : "";
     const org = p.org ? `<span class="pill">${p.org}</span>` : "";
     const district = p.district ? `<span class="pill">${p.district}</span>` : "";
-    const address = p.address ? `<div class="day-meta">📍 ${p.address}</div>` : "";
+    const address = p.address
+      ? (() => {
+          const q = encodeURIComponent(p.address);
+          const naverMap = `https://map.naver.com/v5/search/${q}`;
+
+          return `
+            <div class="day-meta">
+              <span class="addr-text">📍 ${p.address}</span>
+              <a
+                class="map-btn"
+                href="${naverMap}"
+                target="_blank"
+                rel="noopener"
+                aria-label="네이버 지도에서 위치 보기"
+              >
+                🗺️ 네이버 지도 열기
+              </a>
+            </div>
+          `;
+        })()
+      : "";
+
     let info = "";
     if (Array.isArray(p.info)) {
       info = `
