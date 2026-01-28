@@ -17,6 +17,77 @@ const favOnlyEl = document.getElementById("favOnly");
 
 const FAVORITES_KEY = "favoritePrograms";
 
+function parseYmd(s) {
+  // expects YYYY-MM-DD
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatYmd(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const d = String(dateObj.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function expandPrograms(list) {
+  const out = [];
+
+  for (const p of list) {
+    const favId =
+      p.id || `${p.org || ""}__${p.title || ""}__${p.startDate || p.date || ""}__${p.endDate || ""}`;
+
+    
+    // Case 1: single-day program (already supported)
+    if (p.date && /^\d{4}-\d{2}-\d{2}$/.test(p.date)) {
+      out.push({...p, favId});
+      continue;
+    }
+
+    // Case 2: range program using startDate/endDate
+    if (p.startDate && p.endDate) {
+      const start = parseYmd(p.startDate);
+      const end = parseYmd(p.endDate);
+
+      // guard: invalid dates or reversed range
+      if (isNaN(start) || isNaN(end) || start > end) {
+        console.warn("Invalid date range:", p);
+        continue;
+      }
+
+      // expand each day
+      const cur = new Date(start);
+      while (cur <= end) {
+        out.push({ ...p, date: formatYmd(cur), favId });
+        cur.setDate(cur.getDate() + 1);
+      }
+      continue;
+    }
+
+    // Optional: if you STILL have "date": "YYYY-MM-DD ~ YYYY-MM-DD"
+    if (typeof p.date === "string" && p.date.includes("~")) {
+      const parts = p.date.split("~").map(x => x.trim());
+      if (parts.length === 2) {
+        const start = parseYmd(parts[0]);
+        const end = parseYmd(parts[1]);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          const cur = new Date(start);
+          while (cur <= end) {
+            out.push({ ...p, date: formatYmd(cur) });
+            cur.setDate(cur.getDate() + 1);
+          }
+          continue;
+        }
+      }
+    }
+
+    // Otherwise ignore (no usable date)
+    console.warn("Program missing valid date:", p);
+  }
+
+  return out;
+}
+
 function getFavorites() {
   return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
 }
@@ -73,7 +144,7 @@ function renderDayList(dateStr, byDate) {
 
   const html = items
   .map((p) => {
-    const programId = `${p.date}_${p.title}`;
+    const programId = p.favId || `${p.org || ""}__${p.title || ""}`;
     const favActive = isFavorite(programId);
     const favBtn = `
       <button
@@ -113,12 +184,25 @@ function renderDayList(dateStr, byDate) {
     if (Array.isArray(p.info)) {
       info = `
         <ul class="day-info-list">
-          ${p.info.map(line => `<li>${line}</li>`).join("")}
+          ${p.info.map(line => {
+            // detect URL
+            const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
+            if (urlMatch) {
+              const url = urlMatch[0];
+              const text = line.replace(url, "").trim();
+              return `
+                <li>
+                  ${text}
+                  <a href="${url}" target="_blank" rel="noopener">${url}</a>
+                </li>
+              `;
+            }
+            return `<li>${line}</li>`;
+          }).join("")}
         </ul>
       `;
     }
-
-
+    
     const title = `<div class="day-title-text">${p.title || "프로그램"}</div>`;
 
     let link = "";
@@ -267,7 +351,7 @@ function getFilteredPrograms() {
     const okDistrict = !filters.district || p.district === filters.district;
 
     // favorites-only filter
-    const id = `${p.date}_${p.title}`;
+    const id = p.favId || `${p.org || ""}__${p.title || ""}`;
     const okFav = !filters.favOnly || favSet.has(id);
 
     return okOrg && okDistrict && okFav;
@@ -280,7 +364,7 @@ async function loadPrograms() {
     const res = await fetch(PROGRAMS_URL);
     if (!res.ok) throw new Error("Failed to load programs JSON");
     const data = await res.json();
-    programs = Array.isArray(data) ? data : [];
+    programs = Array.isArray(data) ? expandPrograms(data) : [];
     // dropdown options (from program data)
     populateSelect(orgFilterEl, uniqueSorted(programs.map(p => p.org)), "전체");
     populateSelect(districtFilterEl, uniqueSorted(programs.map(p => p.district)), "전체");

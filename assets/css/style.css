@@ -282,6 +282,12 @@ body {
   margin-bottom: 4px;
 }
 
+.day-info-list a,
+.day-info-list a:visited {
+  color: #0066cc;
+  word-break: break-all;
+}
+
 .day-title-text {
   font-size: 16px;
   font-weight: 700;
@@ -386,7 +392,7 @@ body {
 
 .fav-btn.active {
   background: #fff3cd;
-  border-color: #ffcc00;
+  border-color: #ffe08a;
   font-weight: 600;
 }
 

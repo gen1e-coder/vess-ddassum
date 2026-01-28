@@ -1,5 +1,6 @@
 [
   {
+    "id": "1",
     "title": "2026년 사진 창작 워크샵 [사진으로 나를 알아가기]",
     "org": "서울 두더집",
     "date": "2026-01-16",
@@ -15,11 +16,19 @@
   },
 
   {
-    "title": "상담 오리엔테이션",
-    "org": "1O 청년센터",
-    "date": "2026-01-22",
-    "time": "14:00-15:00",
-    "district": "강서구",
-    "link": ""
+    "id": "2",
+    "title": "2026 신경다양성 청년 일경험 참여자 모집",
+    "org": "두더집땅굴",
+    "startDate": "2026-02-02",
+    "endDate": "2026-03-25",
+    "time": "",
+    "district": "",
+    "address": "",
+    "info": [
+      "활동기간 1기) 2026년 4~6월 (3개원간 주2일, 일일 4시간 일경험)",
+      "활동기간 2기) 2026년 7~9월 (3개월간 주3일, 일일 4시간 일경험)",
+      "세부내용 확인: https://dudug.kr/notice/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=169700138&t=board"
+    ],
+    "link": "https://forms.gle/zGYbbxGN51qsCtru7 "
   }
 ]
